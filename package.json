@@ -1,11 +1,11 @@
 {
     "name": "jupyter",
     "displayName": "Jupyter",
-    "version": "2024.1.0",
+    "version": "2024.666.1",
     "description": "Jupyter notebook support, interactive programming and computing that supports Intellisense, debugging and more.",
     "publisher": "ms-toolsai",
     "author": {
-        "name": "Microsoft Corporation"
+        "name": "Pho + Microsoft Corporation"
     },
     "extensionPack": [
         "ms-toolsai.jupyter-keymap",
@@ -14,13 +14,13 @@
         "ms-toolsai.vscode-jupyter-cell-tags"
     ],
     "license": "MIT",
-    "homepage": "https://github.com/Microsoft/vscode-jupyter",
+    "homepage": "https://github.com/CommanderPho/vscode-jupyter",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Microsoft/vscode-jupyter"
+        "url": "https://github.com/CommanderPho/vscode-jupyter"
     },
     "bugs": {
-        "url": "https://github.com/Microsoft/vscode-jupyter/issues"
+        "url": "https://github.com/CommanderPho/vscode-jupyter/issues"
     },
     "qna": "https://github.com/microsoft/vscode-jupyter/discussions",
     "icon": "icon.png",
@@ -29,7 +29,7 @@
         "theme": "light"
     },
     "engines": {
-        "vscode": "^1.86.0"
+        "vscode": "^1.85.1"
     },
     "l10n": "./l10n",
     "extensionKind": [
@@ -41,7 +41,8 @@
         "notebookKernelJupyterNotebook",
         "multi-root ready",
         "python",
-        "interactive"
+        "interactive",
+        "Pho"
     ],
     "categories": [
         "Extension Packs",
@@ -2269,6 +2270,7 @@
         "@vscode/python-extension": "^1.0.4",
         "ajv-keywords": "^3.5.2",
         "ansi-to-html": "^0.6.7",
+        "ansi-to-react": "^6.1.6",
         "bootstrap": "^4.3.1",
         "bootstrap-less": "^3.3.8",
         "cross-fetch": "^3.1.5",

@@ -15,10 +15,10 @@
     "homepage": "https://github.com/microsoft/vscode-jupyter",
     "repository": {
         "type": "git",
-        "url": "https://github.com/Microsoft/vscode-jupyter"
+        "url": "https://github.com/CommanderPho/vscode-jupyter"
     },
     "bugs": {
-        "url": "https://github.com/Microsoft/vscode-jupyter/issues"
+        "url": "https://github.com/CommanderPho/vscode-jupyter/issues"
     },
     "scripts": {
         "buildStable": "npm run clean && node ./stable.js",

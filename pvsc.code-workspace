@@ -21,6 +21,9 @@
         {
             "name": "vscode-jupyter-powertoys",
             "path": "../vscode-jupyter-powertoys"
+        },
+        {
+            "path": "../vscode-jupyter-cell-tags"
         }
     ],
     "settings": {
