@@ -84,8 +84,8 @@ export class Extensions implements IExtensions {
                 if (!extensionFolderName || !extensionPathFromFrames) {
                     return { extensionId: unknownExtensionId, displayName: DataScience.unknownPackage };
                 }
-                // Possible Jupyter extension root is ~/.vscode-server-insiders/extensions/ms-toolsai.jupyter-2024.3.0
-                // But call stack has paths such as ~/.vscode-insiders/extensions/ms-toolsai.vscode-jupyter-powertoys-0.1.0/out/main.js
+                // Possible Jupyter extension root is ~/.vscode-server-insiders/extensions/phohale.jupyter-2024.3.0
+                // But call stack has paths such as ~/.vscode-insiders/extensions/phohale.vscode-jupyter-powertoys-0.1.0/out/main.js
                 for (const frame of frames.filter((f) => {
                     return f.startsWith(extensionPathFromFrames!) && !f.includes(JVSC_EXTENSION_ID);
                 })) {

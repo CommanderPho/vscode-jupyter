@@ -1,17 +1,17 @@
 {
     "name": "jupyter",
     "displayName": "Jupyter",
-    "version": "2024.6.0",
+    "version": "2024.666.5",
     "description": "Jupyter notebook support, interactive programming and computing that supports Intellisense, debugging and more.",
-    "publisher": "ms-toolsai",
+    "publisher": "phohale",
     "author": {
-        "name": "Microsoft Corporation"
+        "name": "Pho + Microsoft Corporation"
     },
     "extensionPack": [
-        "ms-toolsai.jupyter-keymap",
-        "ms-toolsai.jupyter-renderers",
-        "ms-toolsai.vscode-jupyter-slideshow",
-        "ms-toolsai.vscode-jupyter-cell-tags"
+        "phohale.jupyter-keymap",
+        "phohale.jupyter-renderers",
+        "phohale.vscode-jupyter-slideshow",
+        "phohale.vscode-jupyter-cell-tags"
     ],
     "license": "MIT",
     "homepage": "https://github.com/Microsoft/vscode-jupyter",
@@ -285,14 +285,14 @@
                 "title": "%jupyter.command.jupyter.runByLine.title%",
                 "icon": "$(debug-line-by-line)",
                 "category": "Jupyter",
-                "enablement": "notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.debugDocuments || !notebookKernel && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted"
+                "enablement": "notebookKernel =~ /^phohale.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.debugDocuments || !notebookKernel && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted"
             },
             {
                 "command": "jupyter.runAndDebugCell",
                 "title": "%jupyter.command.jupyter.debugCell.title%",
                 "icon": "$(debug-alt-small)",
                 "category": "Jupyter",
-                "enablement": "notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.debugDocuments || !notebookKernel && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted"
+                "enablement": "notebookKernel =~ /^phohale.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.debugDocuments || !notebookKernel && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted"
             },
             {
                 "command": "jupyter.runByLineNext",
@@ -322,31 +322,31 @@
                     "light": "resources/light/export_to_python.svg",
                     "dark": "resources/dark/export_to_python.svg"
                 },
-                "enablement": "notebookType == jupyter-notebook && isWorkspaceTrusted && !jupyter.webExtension || notebookType == jupyter-notebook && isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^ms-toolsai.jupyter\\//"
+                "enablement": "notebookType == jupyter-notebook && isWorkspaceTrusted && !jupyter.webExtension || notebookType == jupyter-notebook && isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^phohale.jupyter\\//"
             },
             {
                 "command": "jupyter.export",
                 "title": "%DataScience.notebookExportAs%",
                 "category": "Jupyter",
-                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^ms-toolsai.jupyter\\//"
+                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^phohale.jupyter\\//"
             },
             {
                 "command": "jupyter.exportAsPythonScript",
                 "title": "%jupyter.command.jupyter.exportAsPythonScript.title%",
                 "category": "Jupyter",
-                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^ms-toolsai.jupyter\\//"
+                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^phohale.jupyter\\//"
             },
             {
                 "command": "jupyter.exportToHTML",
                 "title": "%jupyter.command.jupyter.exportToHTML.title%",
                 "category": "Jupyter",
-                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^ms-toolsai.jupyter\\//"
+                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^phohale.jupyter\\//"
             },
             {
                 "command": "jupyter.exportToPDF",
                 "title": "%jupyter.command.jupyter.exportToPDF.title%",
                 "category": "Jupyter",
-                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^ms-toolsai.jupyter\\//"
+                "enablement": "isWorkspaceTrusted && !jupyter.webExtension || isWorkspaceTrusted && jupyter.webExtension && notebookKernel =~ /^phohale.jupyter\\//"
             },
             {
                 "command": "jupyter.selectJupyterInterpreter",
@@ -603,21 +603,21 @@
                     "light": "resources/light/restart-kernel.svg",
                     "dark": "resources/dark/restart-kernel.svg"
                 },
-                "enablement": "isWorkspaceTrusted && (jupyter.interactive.canRestartNotebookKernel || (notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.notebookeditor.canrestartNotebookkernel))"
+                "enablement": "isWorkspaceTrusted && (jupyter.interactive.canRestartNotebookKernel || (notebookKernel =~ /^phohale.jupyter\\// && jupyter.notebookeditor.canrestartNotebookkernel))"
             },
             {
                 "command": "jupyter.restartkernelandrunallcells",
                 "title": "%jupyter.command.jupyter.restartkernelandrunallcells.title%",
                 "shortTitle": "%jupyter.command.jupyter.restartkernelandrunallcells.shorttitle%",
                 "category": "Jupyter",
-                "enablement": "isWorkspaceTrusted && (jupyter.interactive.canRestartNotebookKernel || (notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.notebookeditor.canrestartNotebookkernel))"
+                "enablement": "isWorkspaceTrusted && (jupyter.interactive.canRestartNotebookKernel || (notebookKernel =~ /^phohale.jupyter\\// && jupyter.notebookeditor.canrestartNotebookkernel))"
             },
             {
                 "command": "jupyter.restartkernelandrunuptoselectedcell",
                 "title": "%jupyter.command.jupyter.restartkernelandrunuptoselectedcell.title%",
                 "shortTitle": "%jupyter.command.jupyter.restartkernelandrunuptoselectedcell.title%",
                 "category": "Jupyter",
-                "enablement": "isWorkspaceTrusted && (notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.notebookeditor.canrestartNotebookkernel)"
+                "enablement": "isWorkspaceTrusted && (notebookKernel =~ /^phohale.jupyter\\// && jupyter.notebookeditor.canrestartNotebookkernel)"
             },
             {
                 "command": "jupyter.notebookeditor.addcellbelow",
@@ -867,19 +867,19 @@
                     "command": "jupyter.restartkernel",
                     "title": "%jupyter.command.jupyter.restartkernel.title%",
                     "group": "navigation@1",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && jupyter.notebookeditor.canrestartNotebookkernel && config.notebook.globalToolbar != true"
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && jupyter.notebookeditor.canrestartNotebookkernel && config.notebook.globalToolbar != true"
                 },
                 {
                     "command": "jupyter.openVariableView",
                     "title": "%jupyter.command.jupyter.openVariableView.title%",
                     "group": "navigation@2",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && config.notebook.globalToolbar != true && jupyter.ispythonnotebook"
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && config.notebook.globalToolbar != true && jupyter.ispythonnotebook"
                 },
                 {
                     "command": "jupyter.openOutlineView",
                     "title": "%jupyter.command.jupyter.openOutlineView.title%",
                     "group": "navigation@3",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && notebookType == 'jupyter-notebook' && config.jupyter.showOutlineButtonInNotebookToolbar && config.notebook.globalToolbar != true"
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && notebookType == 'jupyter-notebook' && config.jupyter.showOutlineButtonInNotebookToolbar && config.notebook.globalToolbar != true"
                 },
                 {
                     "command": "jupyter.notebookeditor.export",
@@ -897,12 +897,12 @@
                 {
                     "command": "jupyter.restartkernel",
                     "group": "navigation/execute@5",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && jupyter.kernel.isjupyter"
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && jupyter.kernel.isjupyter"
                 },
                 {
                     "command": "jupyter.openVariableView",
                     "group": "navigation@1",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && jupyter.ispythonnotebook && jupyter.kernel.isjupyter"
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && notebookType == 'jupyter-notebook' && isWorkspaceTrusted && jupyter.ispythonnotebook && jupyter.kernel.isjupyter"
                 },
                 {
                     "command": "jupyter.openOutlineView",
@@ -928,7 +928,7 @@
             "notebook/cell/title": [
                 {
                     "command": "jupyter.runByLine",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && notebookType == jupyter-notebook && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.runByLineDocuments || !notebookKernel && notebookType == jupyter-notebook && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted",
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && notebookType == jupyter-notebook && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.runByLineDocuments || !notebookKernel && notebookType == jupyter-notebook && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted",
                     "group": "inline/cell@0"
                 },
                 {
@@ -960,17 +960,17 @@
             "notebook/cell/execute": [
                 {
                     "command": "jupyter.runAndDebugCell",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.debugDocuments || !notebookKernel && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted",
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && resource not in jupyter.notebookeditor.debugDocuments || !notebookKernel && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted",
                     "group": "jupyterCellExecute@0"
                 },
                 {
                     "command": "jupyter.runPrecedentCells",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && config.jupyter.executionAnalysis.enabled",
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && config.jupyter.executionAnalysis.enabled",
                     "group": "jupyterCellExecute@1"
                 },
                 {
                     "command": "jupyter.runDependentCells",
-                    "when": "notebookKernel =~ /^ms-toolsai.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && config.jupyter.executionAnalysis.enabled",
+                    "when": "notebookKernel =~ /^phohale.jupyter\\// && jupyter.ispythonnotebook && notebookCellType == code && isWorkspaceTrusted && config.jupyter.executionAnalysis.enabled",
                     "group": "jupyterCellExecute@2"
                 }
             ],
@@ -978,49 +978,49 @@
                 {
                     "command": "jupyter.interactive.clearAllCells",
                     "group": "navigation@0",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 },
                 {
                     "command": "jupyter.restartkernel",
                     "group": "navigation@1",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 },
                 {
                     "command": "jupyter.openVariableView",
                     "group": "navigation@3",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 },
                 {
                     "command": "jupyter.interactive.exportasnotebook",
                     "group": "navigation@4",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 },
                 {
                     "command": "jupyter.interactive.exportas",
                     "group": "navigation@5",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 },
                 {
                     "command": "jupyter.expandallcells",
                     "group": "navigation@6",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 },
                 {
                     "command": "jupyter.collapseallcells",
                     "group": "navigation@7",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 }
             ],
             "interactive/cell/title": [
                 {
                     "command": "jupyter.interactive.copyCell",
                     "group": "inline@0",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 },
                 {
                     "command": "jupyter.interactive.goToCode",
                     "group": "inline@1",
-                    "when": "isWorkspaceTrusted && notebookKernel =~ /^ms-toolsai.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
+                    "when": "isWorkspaceTrusted && notebookKernel =~ /^phohale.jupyter\\// || isWorkspaceTrusted && !notebookKernel"
                 }
             ],
             "explorer/context": [
@@ -2058,8 +2058,8 @@
         "notebookVariableProvider"
     ],
     "scripts": {
-        "package": "gulp clean && gulp prePublishBundle && vsce package -o ms-toolsai-jupyter-insiders.vsix",
-        "packagePreRelease": "gulp clean && gulp prePublishBundle && vsce package --pre-release -o ms-toolsai-jupyter-insiders.vsix",
+        "package": "gulp clean && gulp prePublishBundle && vsce package -o phohale-jupyter-insiders.vsix",
+        "packagePreRelease": "gulp clean && gulp prePublishBundle && vsce package --pre-release -o phohale-jupyter-insiders.vsix",
         "prePublishBundleStable": "cross-env IS_PRE_RELEASE_VERSION_OF_JUPYTER_EXTENSION=false gulp prePublishBundle",
         "prePublishBundlePreRelease": "cross-env IS_PRE_RELEASE_VERSION_OF_JUPYTER_EXTENSION=true gulp prePublishBundle",
         "createNycFolder": "gulp createNycFolder",
