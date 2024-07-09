@@ -309,6 +309,6 @@ Steps to build the extension on your machine once you've cloned the repo:
 > npm run package # This step takes around 10 minutes.
 ```
 
-Resulting in a `ms-toolsai-jupyter-insiders.vsix` file in your `vscode-jupyter` folder.
+Resulting in a `phohale-jupyter-insiders.vsix` file in your `vscode-jupyter` folder.
 
 ⚠️ If you made changes to `package.json`, run `npm install` (instead of `npm ci`) to update `package-lock.json` and install dependencies all at once.

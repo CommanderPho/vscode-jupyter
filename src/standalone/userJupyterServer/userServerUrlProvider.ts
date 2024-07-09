@@ -310,7 +310,7 @@ export class UserJupyterServerUrlProvider
                             .then(noop, noop);
                     } else if (selection === Common.moreInfo) {
                         env.openExternal(
-                            Uri.parse('https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter-hub')
+                            Uri.parse('https://marketplace.visualstudio.com/items?itemName=phohale.jupyter-hub')
                         ).then(noop, noop);
                     }
                 }, noop);

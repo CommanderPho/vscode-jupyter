@@ -21,7 +21,7 @@
             },
             "extensions": [
                 "ms-python.python@prerelease",
-                "ms-toolsai.jupyter-renderers",
+                "phohale.jupyter-renderers",
                 "ms-python.vscode-pylance",
                 "amodio.tsl-problem-matcher",
                 "dbaeumer.vscode-eslint",

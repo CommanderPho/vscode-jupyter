@@ -30,8 +30,8 @@ export class RunInDedicatedExtensionHostCommandHandler implements IExtensionSync
         const targetAffinity = maxAffinity + 1;
 
         let update: { [key: string]: number } = {
-            'ms-toolsai.jupyter': targetAffinity,
-            'ms-toolsai.jupyter-renderers': targetAffinity
+            'phohale.jupyter': targetAffinity,
+            'phohale.jupyter-renderers': targetAffinity
         };
 
         if (extensions.getExtension(PythonExtension)) {

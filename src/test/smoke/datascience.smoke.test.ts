@@ -110,7 +110,7 @@ suite('Smoke Tests', function () {
         traceVerbose(`Before selected kernel ${controllerId}`);
         await vscode.commands.executeCommand('notebook.selectKernel', {
             id: controllerId,
-            extension: 'ms-toolsai.jupyter'
+            extension: 'phohale.jupyter'
         });
 
         traceVerbose(`Selected kernel ${controllerId}`);

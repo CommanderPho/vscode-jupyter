@@ -9,7 +9,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-toolsai.jupyter-renderers",
+                "phohale.jupyter-renderers",
                 "amodio.tsl-problem-matcher",
                 "dbaeumer.vscode-eslint",
                 "editorconfig.editorconfig",

@@ -51,7 +51,7 @@ This changelog is deprecated. Here is where you can find details about the lates
    ([#7583](https://github.com/Microsoft/vscode-jupyter/issues/7583))
 1. Reduce the amount of work done for each code lens creation to help performance.
    ([#11433](https://github.com/Microsoft/vscode-jupyter/issues/11433))
-1. Ship renderer preload scripts in the [Notebook Renderer Extension](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter-renderers).
+1. Ship renderer preload scripts in the [Notebook Renderer Extension](https://marketplace.visualstudio.com/items?itemName=phohale.jupyter-renderers).
    ([#11671](https://github.com/Microsoft/vscode-jupyter/issues/11671))
 1. Initialize the environment variable `PYDEVD_IPYTHON_COMPATIBLE_DEBUGGING` at the point of spawning the Python kernel.
    ([#11682](https://github.com/Microsoft/vscode-jupyter/issues/11682))
@@ -1293,7 +1293,7 @@ make this extension useful:
 
 ### Enhancements
 
-1. Split Notebook renderers into a separate extension ([Jupyter Notebook Renderers](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter-renderers)), allowing users to view Notebook outputs such as plotly, vega on [github.dev](https://github.dev).
+1. Split Notebook renderers into a separate extension ([Jupyter Notebook Renderers](https://marketplace.visualstudio.com/items?itemName=phohale.jupyter-renderers)), allowing users to view Notebook outputs such as plotly, vega on [github.dev](https://github.dev).
    ([#1909](https://github.com/Microsoft/vscode-jupyter/issues/1909))
 1. Added support to use Run by Line and Notebook Debugging in remote kernels.
    ([#7576](https://github.com/Microsoft/vscode-jupyter/issues/7576))

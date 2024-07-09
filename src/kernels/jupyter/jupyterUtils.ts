@@ -165,7 +165,7 @@ export async function computeServerId(provider: JupyterServerProviderHandle) {
 }
 
 const ExtensionsWithKnownProviderIds = new Set(
-    [JVSC_EXTENSION_ID, 'ms-toolsai.vscode-ai', 'GitHub.codespaces'].map((e) => e.toLowerCase())
+    [JVSC_EXTENSION_ID, 'phohale.vscode-ai', 'GitHub.codespaces'].map((e) => e.toLowerCase())
 );
 
 export function generateIdFromRemoteProvider(provider: JupyterServerProviderHandle) {
@@ -239,7 +239,7 @@ export function getOwnerExtensionOfProviderHandle(id: string) {
         return JVSC_EXTENSION_ID;
     }
     if (id.startsWith('azureml_compute_instances') || id.startsWith('azureml_connected_compute_instances')) {
-        return 'ms-toolsai.vscode-ai';
+        return 'phohale.vscode-ai';
     }
     if (id === 'github-codespaces') {
         return 'GitHub.codespaces';

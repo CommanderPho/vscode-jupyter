@@ -14,7 +14,7 @@ export class ExposeUsedAzMLServerHandles implements IExtensionSyncActivationServ
             const usedItems: { id: string; handle: string }[] = [];
             const items = this.uriStorage.all;
             items.forEach((item) => {
-                if (item.provider.extensionId.toLowerCase() === 'ms-toolsai.vscode-ai'.toLowerCase()) {
+                if (item.provider.extensionId.toLowerCase() === 'phohale.vscode-ai'.toLowerCase()) {
                     usedItems.push(item.provider);
                 }
             });

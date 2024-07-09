@@ -96,8 +96,8 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: 'ms-toolsai-jupyter-insiders.vsix'
-          path: 'ms-toolsai-jupyter-insiders.vsix'
+          name: 'phohale-jupyter-insiders.vsix'
+          path: 'phohale-jupyter-insiders.vsix'
 
   lint:
     name: Lint
@@ -746,7 +746,7 @@ jobs:
     if: github.repository == 'microsoft/vscode-jupyter'
     needs: [build-vsix]
     env:
-      VSIX_NAME: 'ms-toolsai-jupyter-insiders.vsix'
+      VSIX_NAME: 'phohale-jupyter-insiders.vsix'
     strategy:
       fail-fast: false
       matrix:
@@ -778,7 +778,7 @@ jobs:
       - name: Download VSIX
         uses: actions/download-artifact@v3
         with:
-          name: 'ms-toolsai-jupyter-insiders.vsix'
+          name: 'phohale-jupyter-insiders.vsix'
 
       # This is faster than running `npm ci`, we do not want to build zmq, etc.
       # Let that happen in other jobs, this job needs to be fast

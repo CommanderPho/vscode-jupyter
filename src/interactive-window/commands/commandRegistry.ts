@@ -571,7 +571,7 @@ export class CommandRegistry implements IDisposable, IExtensionSyncActivationSer
     }
 
     private openPythonExtensionPage() {
-        env.openExternal(Uri.parse(`https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter`)).then(
+        env.openExternal(Uri.parse(`https://marketplace.visualstudio.com/items?itemName=phohale.jupyter`)).then(
             noop,
             noop
         );

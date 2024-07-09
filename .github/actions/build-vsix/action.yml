@@ -4,7 +4,7 @@ description: "Build the extension's VSIX"
 outputs:
   path:
     description: 'Path to the VSIX'
-    value: 'ms-toolsai-jupyter-insiders.vsix'
+    value: 'phohale-jupyter-insiders.vsix'
 
 runs:
   using: 'composite'

@@ -80,7 +80,7 @@ export interface ICommandNameArgumentTypeMapping {
     ['jupyter.filterKernels']: [never];
     ['workbench.action.quickOpen']: [string];
     ['workbench.extensions.installExtension']: [
-        Uri | 'ms-toolsai.jupyter' | 'ms-python.python',
+        Uri | 'phohale.jupyter' | 'ms-python.python',
         { context: { skipWalkthrough: boolean } }
     ];
     ['workbench.action.files.openFolder']: [];
