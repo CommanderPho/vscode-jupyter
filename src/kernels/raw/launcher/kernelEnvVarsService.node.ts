@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 import { inject, injectable } from 'inversify';
-import { traceInfo, traceError, traceVerbose } from '../../../platform/logging';
+import { logger } from '../../../platform/logging';
 import { getDisplayPath } from '../../../platform/common/platform/fs-paths';
 import { IConfigurationService, Resource } from '../../../platform/common/types';
 import { noop } from '../../../platform/common/utils/misc';
 import {
     IEnvironmentVariablesService,
-    ICustomEnvironmentVariablesProvider
+    ICustomEnvironmentVariablesProvider,
+    EnvironmentVariables
 } from '../../../platform/common/variables/types';
 import { IEnvironmentActivationService } from '../../../platform/interpreter/activation/types';
 import { IInterpreterService } from '../../../platform/interpreter/contracts';
@@ -57,7 +58,7 @@ export class KernelEnvironmentVariablesService {
             interpreter = await this.interpreterService
                 .getInterpreterDetails(Uri.file(kernelSpec.interpreterPath), token)
                 .catch((ex) => {
-                    traceError('Failed to fetch interpreter information for interpreter that owns a kernel', ex);
+                    logger.error('Failed to fetch interpreter information for interpreter that owns a kernel', ex);
                     return undefined;
                 });
         }
@@ -72,7 +73,10 @@ export class KernelEnvironmentVariablesService {
                 ? this.envActivation
                       .getActivatedEnvironmentVariables(resource, interpreter, token)
                       .catch<undefined>((ex) => {
-                          traceError('Failed to get env variables for interpreter, hence no variables for Kernel', ex);
+                          logger.error(
+                              'Failed to get env variables for interpreter, hence no variables for Kernel',
+                              ex
+                          );
                           return undefined;
                       })
                 : undefined
@@ -85,7 +89,7 @@ export class KernelEnvironmentVariablesService {
         });
 
         if (!interpreterEnv && Object.keys(customEnvVars || {}).length === 0) {
-            traceVerbose('No custom variables nor do we have a conda environment');
+            logger.debug('No custom variables nor do we have a conda environment');
         }
 
         let mergedVars = { ...process.env };
@@ -101,6 +105,15 @@ export class KernelEnvironmentVariablesService {
         kernelEnv = kernelEnv || {};
         customEnvVars = customEnvVars || {};
 
+        // Keep a list of the kernelSpec variables that need to be substituted.
+        const kernelSpecVariablesRequiringSubstitution: Record<string, string> = {};
+        for (const [key, value] of Object.entries(kernelEnv || {})) {
+            if (typeof value === 'string' && substituteEnvVars(key, value, process.env) !== value) {
+                kernelSpecVariablesRequiringSubstitution[key] = value;
+                delete kernelEnv[key];
+            }
+        }
+
         if (isPythonKernel || interpreter) {
             // Merge the env variables with that of the kernel env.
             interpreterEnv = interpreterEnv || customEnvVars;
@@ -111,7 +124,7 @@ export class KernelEnvironmentVariablesService {
             // For more details see here https://github.com/microsoft/vscode-jupyter/issues/8553#issuecomment-997144591
             // https://docs.python.org/3/library/site.html#site.ENABLE_USER_SITE
             if (this.configService.getSettings(undefined).excludeUserSitePackages) {
-                traceInfo(`Adding env Variable PYTHONNOUSERSITE to ${getDisplayPath(interpreter?.uri)}`);
+                logger.info(`Adding env Variable PYTHONNOUSERSITE to ${getDisplayPath(interpreter?.uri)}`);
                 mergedVars.PYTHONNOUSERSITE = 'True';
             }
             if (isPythonKernel) {
@@ -124,10 +137,40 @@ export class KernelEnvironmentVariablesService {
             this.envVarsService.mergeVariables(customEnvVars, mergedVars); // custom vars win over all.
         }
 
-        traceVerbose(
-            `Kernel Env Variables for ${kernelSpec.specFile || kernelSpec.name}, PATH value is ${mergedVars.PATH}`
-        );
+        // env variables in kernelSpecs can contain variables that need to be substituted
+        for (const [key, value] of Object.entries(kernelSpecVariablesRequiringSubstitution)) {
+            mergedVars[key] = substituteEnvVars(key, value, mergedVars);
+        }
 
         return mergedVars;
     }
+}
+
+const SUBST_REGEX = /\${([a-zA-Z]\w*)?([^}\w].*)?}/g;
+
+function substituteEnvVars(key: string, value: string, globalVars: EnvironmentVariables): string {
+    if (!value.includes('$')) {
+        return value;
+    }
+    // Substitution here is inspired a little by dotenv-expand:
+    //   https://github.com/motdotla/dotenv-expand/blob/master/lib/main.js
+
+    let invalid = false;
+    let replacement = value;
+    replacement = replacement.replace(SUBST_REGEX, (match, substName, bogus, offset, orig) => {
+        if (offset > 0 && orig[offset - 1] === '\\') {
+            return match;
+        }
+        if ((bogus && bogus !== '') || !substName || substName === '') {
+            invalid = true;
+            return match;
+        }
+        return globalVars[substName] || '';
+    });
+    if (!invalid && replacement !== value) {
+        logger.debug(`${key} value in kernelSpec updated from ${value} to ${replacement}`);
+        value = replacement;
+    }
+
+    return value.replace(/\\\$/g, '$');
 }

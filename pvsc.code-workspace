@@ -23,7 +23,7 @@
             "path": "../vscode-jupyter-powertoys"
         },
         {
-            "path": "../vscode-jupyter-cell-tags"
+            "path": "src/test/vscode-notebook-perf"
         }
     ],
     "settings": {
@@ -180,25 +180,5 @@
             }
         ],
         "compounds": []
-    },
-    "tasks": {
-        "version": "2.0.0",
-        "tasks": [
-            {
-                "label": "build",
-                "type": "shell",
-                "command": "msbuild",
-                "args": [
-                    "/property:GenerateFullPaths=true",
-                    "/t:build",
-                    "/consoleloggerparameters:NoSummary"
-                ],
-                "group": "build",
-                "presentation": {
-                    "reveal": "silent"
-                },
-                "problemMatcher": "$msCompile"
-            }
-        ]
     }
 }

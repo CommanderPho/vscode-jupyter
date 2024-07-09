@@ -8,6 +8,7 @@ import {
     commands,
     Event,
     EventEmitter,
+    NotebookDocument,
     Position,
     Range,
     Selection,
@@ -24,14 +25,16 @@ import { isUri, noop } from '../../platform/common/utils/misc';
 import { capturePerfTelemetry, captureUsageTelemetry, sendTelemetryEvent } from '../../telemetry';
 import { ICodeExecutionHelper } from '../../platform/terminals/types';
 import { InteractiveCellResultError } from '../../platform/errors/interactiveCellResultError';
-import { Telemetry, Commands, Identifiers } from '../../platform/common/constants';
+import { Telemetry, Commands, Identifiers, InteractiveWindowView } from '../../platform/common/constants';
 import { IInteractiveWindowProvider, IInteractiveWindow } from '../types';
 import { CellMatcher } from './cellMatcher';
 import { ICodeWatcher, ICodeLensFactory } from './types';
-import { traceDecoratorVerbose } from '../../platform/logging';
+import { debugDecorator } from '../../platform/logging';
 import { TraceOptions } from '../../platform/logging/types';
 import * as urlPath from '../../platform/vscode-path/resources';
 import { IDataScienceErrorHandler } from '../../kernels/errors/types';
+import { dispose } from '../../platform/common/utils/lifecycle';
+import { dedentCode } from '../../platform/common/helpers';
 
 function getIndex(index: number, length: number): number {
     // return index within the length range with negative indexing
@@ -63,8 +66,7 @@ export class CodeWatcher implements ICodeWatcher {
     private codeLenses: CodeLens[] = [];
     private cells: ICellRange[] = [];
     private codeLensUpdatedEvent: EventEmitter<void> = new EventEmitter<void>();
-    private updateRequiredDisposable: IDisposable | undefined;
-    private closeDocumentDisposable: IDisposable | undefined;
+    private disposables: IDisposable[] = [this.codeLensUpdatedEvent];
 
     constructor(
         @inject(IInteractiveWindowProvider) private interactiveWindowProvider: IInteractiveWindowProvider,
@@ -85,10 +87,13 @@ export class CodeWatcher implements ICodeWatcher {
         this.cells = this.codeLensFactory.getCellRanges(document);
 
         // Listen for changes
-        this.updateRequiredDisposable = this.codeLensFactory.updateRequired(this.onCodeLensFactoryUpdated.bind(this));
+        this.disposables.push(this.codeLensFactory.updateRequired(this.onCodeLensFactoryUpdated.bind(this)));
 
         // Make sure to stop listening for changes when this document closes.
-        this.closeDocumentDisposable = workspace.onDidCloseTextDocument(this.onDocumentClosed.bind(this));
+        this.disposables.push(workspace.onDidCloseTextDocument(this.onDocumentClosed.bind(this)));
+
+        // clean up goto code lenses when interactive windows close
+        this.disposables.push(workspace.onDidCloseNotebookDocument(this.ondidCloseNotebook.bind(this)));
     }
 
     public get codeLensUpdated(): Event<void> {
@@ -131,9 +136,7 @@ export class CodeWatcher implements ICodeWatcher {
             });
         }
 
-        this.codeLensUpdatedEvent.dispose();
-        this.closeDocumentDisposable?.dispose(); // NOSONAR
-        this.updateRequiredDisposable?.dispose(); // NOSONAR
+        dispose(this.disposables);
     }
 
     @captureUsageTelemetry(Telemetry.RunAllCells)
@@ -321,7 +324,7 @@ export class CodeWatcher implements ICodeWatcher {
         }
     }
 
-    @traceDecoratorVerbose('CodeWatcher::runCell', TraceOptions.BeforeCall)
+    @debugDecorator('CodeWatcher::runCell', TraceOptions.BeforeCall)
     public async runCell(range: Range): Promise<void> {
         if (!window.activeTextEditor || !window.activeTextEditor.document) {
             return;
@@ -999,15 +1002,23 @@ export class CodeWatcher implements ICodeWatcher {
 
     private onDocumentClosed(doc: TextDocument): void {
         if (this.document && urlPath.isEqual(doc.uri, this.document.uri)) {
-            this.codeLensUpdatedEvent.dispose();
-            this.closeDocumentDisposable?.dispose(); // NOSONAR
-            this.updateRequiredDisposable?.dispose(); // NOSONAR
+            dispose(this.disposables);
+        }
+    }
+
+    private ondidCloseNotebook(notebook: NotebookDocument): void {
+        if (
+            notebook.notebookType === InteractiveWindowView &&
+            this.configService.getSettings(this.document?.uri).addGotoCodeLenses
+        ) {
+            this.onCodeLensFactoryUpdated();
         }
     }
 
     private getActiveInteractiveWindow() {
         return this.interactiveWindowProvider.getOrCreate(this.document?.uri);
     }
+
     private async addCode(
         interactiveWindow: IInteractiveWindow,
         code: string,
@@ -1030,12 +1041,13 @@ export class CodeWatcher implements ICodeWatcher {
 
         return result;
     }
+
     private async runMatchingCell(range: Range, advance?: boolean, debug?: boolean) {
         const currentRunCellLens = this.getCurrentCellLens(range.start);
         const nextRunCellLens = this.getNextCellLens(range.start);
 
         if (currentRunCellLens && this.document) {
-            const code = this.document.getText(currentRunCellLens.range);
+            const code = dedentCode(this.document.getText(currentRunCellLens.range));
 
             // Move the next cell if allowed.
             if (advance) {

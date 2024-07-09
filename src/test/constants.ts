@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export const JVSC_EXTENSION_ID_FOR_TESTS = 'phohale.jupyter';
+export const JVSC_EXTENSION_ID_FOR_TESTS = 'ms-toolsai.jupyter';
+export const PerformanceExtensionId = 'ms-toolsai.vscode-notebook-perf';
 
 export type TestSettingsType = {
     isSmokeTest: boolean;

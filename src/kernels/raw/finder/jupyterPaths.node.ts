@@ -7,7 +7,7 @@ import * as uriPath from '../../../platform/vscode-path/resources';
 import { CancellationToken, Memento, Uri } from 'vscode';
 import { IFileSystem, IPlatformService } from '../../../platform/common/platform/types';
 import { IFileSystemNode } from '../../../platform/common/platform/types.node';
-import { ignoreLogging, logValue, traceError, traceVerbose, traceWarning } from '../../../platform/logging';
+import { ignoreLogging, logValue, logger } from '../../../platform/logging';
 import {
     IDisposableRegistry,
     IMemento,
@@ -17,7 +17,7 @@ import {
 } from '../../../platform/common/types';
 import { tryGetRealPath } from '../../../platform/common/utils.node';
 import { ICustomEnvironmentVariablesProvider } from '../../../platform/common/variables/types';
-import { traceDecoratorVerbose } from '../../../platform/logging';
+import { debugDecorator } from '../../../platform/logging';
 import { OSType } from '../../../platform/common/utils/platform.node';
 import { noop } from '../../../platform/common/utils/misc';
 import { PythonEnvironment } from '../../../platform/pythonEnvironments/info';
@@ -26,6 +26,7 @@ import { IPythonExecutionFactory } from '../../../platform/interpreter/types.nod
 import { getDisplayPath } from '../../../platform/common/platform/fs-paths';
 import { StopWatch } from '../../../platform/common/utils/stopWatch';
 import { ResourceMap, ResourceSet } from '../../../platform/common/utils/map';
+import { getPythonEnvDisplayName, getSysPrefix } from '../../../platform/interpreter/helpers';
 
 const winJupyterPath = path.join('AppData', 'Roaming', 'jupyter', 'kernels');
 const linuxJupyterPath = path.join('.local', 'share', 'jupyter', 'kernels');
@@ -100,7 +101,7 @@ export class JupyterPaths {
         })();
         this.cachedKernelSpecRootPath
             .then((value) => {
-                traceVerbose(`Getting Jupyter KernelSpec Root Path ${value?.toString()}`);
+                logger.trace(`Getting Jupyter KernelSpec Root Path ${value?.toString()}`);
                 this.updateCachedRootPath(value);
             })
             .catch(noop);
@@ -127,7 +128,7 @@ export class JupyterPaths {
             }
         }
         if (!runtimeDir) {
-            traceError(`Failed to determine Jupyter runtime directory`);
+            logger.error(`Failed to determine Jupyter runtime directory`);
             return;
         }
 
@@ -136,7 +137,7 @@ export class JupyterPaths {
             await this.fs.createDirectory(runtimeDir);
             return runtimeDir;
         } catch (ex) {
-            traceError(`Failed to create runtime directory, reverting to temp directory ${runtimeDir}`, ex);
+            logger.error(`Failed to create runtime directory, reverting to temp directory ${runtimeDir}`, ex);
         }
     }
     /**
@@ -152,7 +153,7 @@ export class JupyterPaths {
         return this.cachedDataDirs.get(key)!;
     }
 
-    @traceDecoratorVerbose('getDataDirsImpl', TraceOptions.BeforeCall | TraceOptions.Arguments)
+    @debugDecorator('getDataDirsImpl', TraceOptions.BeforeCall | TraceOptions.Arguments | TraceOptions.ReturnValue)
     private async getDataDirsImpl(
         resource: Resource,
         @logValue<PythonEnvironment>('id') interpreter?: PythonEnvironment
@@ -171,6 +172,7 @@ export class JupyterPaths {
         // 2. Add the paths based on ENABLE_USER_SITE
         if (interpreter) {
             try {
+                logger.ci(`Getting Jupyter Data Dir for ${interpreter.uri.fsPath}`);
                 const factory = await this.pythonExecFactory.createActivatedEnvironment({
                     interpreter,
                     resource
@@ -183,19 +185,24 @@ export class JupyterPaths {
                         if (!dataDir.has(sitePath)) {
                             dataDir.set(sitePath, dataDir.size);
                         }
-                    } else {
-                        traceWarning(`Got a non-existent Jupyer Data Dir ${sitePath}`);
                     }
+                } else {
+                    logger.debug(`Got an empty Jupyter Data Dir from ${interpreter.id}, stderr = ${result.stderr}`);
                 }
             } catch (ex) {
-                traceError(`Failed to get DataDir based on ENABLE_USER_SITE for ${interpreter.displayName}`, ex);
+                logger.error(
+                    `Failed to get DataDir based on ENABLE_USER_SITE for ${getPythonEnvDisplayName(interpreter)}`,
+                    ex
+                );
             }
         }
 
         // 3. Add the paths based on user and env data directories
-        const possibleEnvJupyterPath = interpreter?.sysPrefix
-            ? Uri.joinPath(Uri.file(interpreter.sysPrefix), 'share', 'jupyter')
-            : undefined;
+        let sysPrefix: string | undefined;
+        if (interpreter) {
+            sysPrefix = await getSysPrefix(interpreter);
+        }
+        const possibleEnvJupyterPath = sysPrefix ? Uri.joinPath(Uri.file(sysPrefix), 'share', 'jupyter') : undefined;
 
         const systemDataDirectories = this.getSystemJupyterPaths();
         const envJupyterPath = possibleEnvJupyterPath
@@ -326,7 +333,7 @@ export class JupyterPaths {
             }
         }
 
-        traceVerbose(
+        logger.debug(
             `Kernel Spec Root Paths, ${Array.from(paths)
                 .map((uri) => getDisplayPath(uri))
                 .join(', ')}`
@@ -379,7 +386,7 @@ export class JupyterPaths {
             });
         }
 
-        traceVerbose(`Jupyter Paths ${getDisplayPath(subDir)}: ${Array.from(paths).map((uri) => getDisplayPath(uri))}`);
+        logger.debug(`Jupyter Paths ${getDisplayPath(subDir)}: ${Array.from(paths).map((uri) => getDisplayPath(uri))}`);
         return Array.from(paths);
     }
 

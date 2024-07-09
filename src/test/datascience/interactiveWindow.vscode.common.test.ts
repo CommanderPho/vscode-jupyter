@@ -3,7 +3,7 @@
 
 import { assert } from 'chai';
 import * as vscode from 'vscode';
-import { traceInfo, traceInfoIfCI } from '../../platform/logging';
+import { logger } from '../../platform/logging';
 import { getDisplayPath } from '../../platform/common/platform/fs-paths';
 import { IDisposable, InteractiveWindowMode } from '../../platform/common/types';
 import { InteractiveWindowProvider } from '../../interactive-window/interactiveWindowProvider';
@@ -53,8 +53,8 @@ import { Commands } from '../../platform/common/constants';
 import { IControllerRegistration } from '../../notebooks/controllers/types';
 import { format } from 'util';
 import { InteractiveWindow } from '../../interactive-window/interactiveWindow';
-import { getNotebookUriFromInputBoxUri } from '../../standalone/intellisense/notebookPythonPathService.node';
 import { isSysInfoCell } from '../../interactive-window/systemInfoCell';
+import { getNotebookUriFromInputBoxUri } from '../../standalone/intellisense/notebookPythonPathService';
 
 suite(`Interactive window execution @iw`, async function () {
     this.timeout(120_000);
@@ -62,16 +62,16 @@ suite(`Interactive window execution @iw`, async function () {
     const disposables: IDisposable[] = [];
     let interactiveWindowProvider: InteractiveWindowProvider;
     setup(async function () {
-        traceInfo(`Start Test ${this.currentTest?.title}`);
+        logger.info(`Start Test ${this.currentTest?.title}`);
         api = await initialize();
         if (IS_REMOTE_NATIVE_TEST()) {
             await startJupyterServer();
         }
         interactiveWindowProvider = api.serviceManager.get(IInteractiveWindowProvider);
-        traceInfo(`Start Test (completed) ${this.currentTest?.title}`);
+        logger.info(`Start Test (completed) ${this.currentTest?.title}`);
     });
     teardown(async function () {
-        traceInfo(`Ended Test ${this.currentTest?.title}`);
+        logger.info(`Ended Test ${this.currentTest?.title}`);
         if (this.currentTest?.isFailed()) {
             // For a flaky interrupt test.
             await captureScreenShot(this);
@@ -80,7 +80,7 @@ suite(`Interactive window execution @iw`, async function () {
         // restore the default value
         const settings = vscode.workspace.getConfiguration('jupyter', null);
         await settings.update('interactiveWindow.creationMode', 'multiple');
-        traceInfo(`Ended Test (completed) ${this.currentTest?.title}`);
+        logger.info(`Ended Test (completed) ${this.currentTest?.title}`);
     });
     test('__file__ exists even after restarting a kernel', async function () {
         // https://github.com/microsoft/vscode-jupyter/issues/12251
@@ -246,6 +246,11 @@ suite(`Interactive window execution @iw`, async function () {
 
 
     print('bar')`;
+        const dedentedCode = `print('foo')
+
+
+
+print('bar')`;
         const codeWithWhitespace = `    # %%
 
 
@@ -256,16 +261,16 @@ ${actualCode}
 
 
 `;
-        traceInfoIfCI('Before submitting');
+        logger.ci('Before submitting');
         const { activeInteractiveWindow: interactiveWindow } = await submitFromPythonFile(
             interactiveWindowProvider,
             codeWithWhitespace,
             disposables
         );
-        traceInfoIfCI('After submitting');
+        logger.ci('After submitting');
         const lastCell = await waitForLastCellToComplete(interactiveWindow);
         const actualCellText = lastCell.document.getText();
-        assert.equal(actualCellText, actualCode);
+        assert.equal(actualCellText, dedentedCode);
     });
 
     test('Run current file in interactive window (with cells)', async () => {
@@ -391,7 +396,6 @@ ${actualCode}
         await waitForExecutionCompletedSuccessfully(secondCell!);
         await waitForTextOutput(secondCell!, '1');
     });
-
     test('Error stack traces have correct line hrefs with mix of cell sources', async function () {
         const settings = vscode.workspace.getConfiguration('jupyter', null);
         await settings.update('interactiveWindow.creationMode', 'single');

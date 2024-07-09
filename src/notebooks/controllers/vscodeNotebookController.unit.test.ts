@@ -8,8 +8,16 @@
 import { assert } from 'chai';
 import * as fakeTimers from '@sinonjs/fake-timers';
 import { NotebookDocument, EventEmitter, NotebookController, Uri, Disposable } from 'vscode';
-import { VSCodeNotebookController } from './vscodeNotebookController';
-import { IKernel, IKernelProvider, KernelConnectionMetadata, LocalKernelConnectionMetadata } from '../../kernels/types';
+import { VSCodeNotebookController, warnWhenUsingOutdatedPython } from './vscodeNotebookController';
+import {
+    IKernel,
+    IKernelProvider,
+    KernelConnectionMetadata,
+    LiveRemoteKernelConnectionMetadata,
+    LocalKernelConnectionMetadata,
+    LocalKernelSpecConnectionMetadata,
+    RemoteKernelSpecConnectionMetadata
+} from '../../kernels/types';
 import { anything, instance, mock, verify, when } from 'ts-mockito';
 import {
     IConfigurationService,
@@ -32,7 +40,8 @@ import { PythonEnvironment } from '../../platform/pythonEnvironments/info';
 import { IConnectionDisplayDataProvider } from './types';
 import { ConnectionDisplayDataProvider } from './connectionDisplayData.node';
 import { mockedVSCodeNamespaces, resetVSCodeMocks } from '../../test/vscode-mock';
-import { IJupyterVariables } from '../../kernels/variables/types';
+import { Environment, PythonExtension } from '@vscode/python-extension';
+import { crateMockedPythonApi, whenResolveEnvironment } from '../../kernels/helpers.unit.test';
 
 suite(`Notebook Controller`, function () {
     let controller: NotebookController;
@@ -58,7 +67,6 @@ suite(`Notebook Controller`, function () {
     let trustedPaths: ITrustedKernelPaths;
     let displayDataProvider: IConnectionDisplayDataProvider;
     let interpreterService: IInterpreterService;
-    let jupyterVariables: IJupyterVariables;
     setup(async function () {
         resetVSCodeMocks();
         disposables.push(new Disposable(() => resetVSCodeMocks()));
@@ -73,7 +81,6 @@ suite(`Notebook Controller`, function () {
         extensionChecker = mock<IPythonExtensionChecker>();
         controller = mock<NotebookController>();
         kernel = mock<IKernel>();
-        jupyterVariables = mock<IJupyterVariables>();
         onDidChangeSelectedNotebooks = new EventEmitter<{
             readonly notebook: NotebookDocument;
             readonly selected: boolean;
@@ -145,8 +152,7 @@ suite(`Notebook Controller`, function () {
             instance(configService),
             instance(extensionChecker),
             instance(serviceContainer),
-            displayDataProvider,
-            jupyterVariables
+            displayDataProvider
         );
         notebook = new TestNotebookDocument(undefined, viewType);
     }
@@ -271,5 +277,271 @@ suite(`Notebook Controller`, function () {
         await clock.runAllAsync();
 
         verify(mockedVSCodeNamespaces.workspace.applyEdit(anything())).once();
+    });
+    suite('Unsupported Python Versions', () => {
+        let disposables: IDisposable[] = [];
+        let environments: PythonExtension['environments'];
+        setup(() => {
+            environments = crateMockedPythonApi(disposables).environments;
+            when(mockedVSCodeNamespaces.window.showWarningMessage(anything(), anything())).thenResolve(undefined);
+        });
+        teardown(() => {
+            disposables = dispose(disposables);
+            resetVSCodeMocks();
+        });
+        test('No warnings when Python is not used', async () => {
+            const kernels = [
+                RemoteKernelSpecConnectionMetadata.create({
+                    baseUrl: 'http://localhost:8888/',
+                    id: '1234',
+                    kernelSpec: {
+                        argv: [],
+                        display_name: '',
+                        executable: '',
+                        name: ''
+                    },
+                    serverProviderHandle: {
+                        extensionId: '',
+                        handle: '',
+                        id: ''
+                    }
+                }),
+                LiveRemoteKernelConnectionMetadata.create({
+                    baseUrl: 'http://localhost:8888/',
+                    id: '1234',
+                    kernelModel: {
+                        name: '',
+                        lastActivityTime: '',
+                        model: undefined,
+                        numberOfConnections: 1
+                    },
+                    serverProviderHandle: {
+                        extensionId: '',
+                        handle: '',
+                        id: ''
+                    }
+                }),
+                LocalKernelSpecConnectionMetadata.create({
+                    id: '1234',
+                    kernelSpec: {
+                        argv: [],
+                        display_name: '',
+                        executable: '',
+                        name: ''
+                    }
+                })
+            ];
+
+            for (const kernel of kernels) {
+                await warnWhenUsingOutdatedPython(kernel);
+                verify(mockedVSCodeNamespaces.window.showWarningMessage(anything(), anything())).never();
+            }
+        });
+        const validVersionsOfPython: Environment['version'][] = [
+            {
+                major: 3,
+                minor: 6,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 3,
+                minor: 7,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 3,
+                minor: 8,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 3,
+                minor: 12,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 4,
+                minor: 0,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            }
+        ];
+
+        validVersionsOfPython.forEach((version) => {
+            test(`No warnings when Python version is valid ${version?.major}.${version?.minor}.${version?.micro}`, async () => {
+                const kernel = LocalKernelSpecConnectionMetadata.create({
+                    id: '1234',
+                    kernelSpec: {
+                        argv: [],
+                        display_name: '',
+                        executable: '',
+                        name: ''
+                    },
+                    interpreter: {
+                        id: 'version',
+                        uri: Uri.file('')
+                    }
+                });
+                when(environments.known).thenReturn([
+                    {
+                        environment: {
+                            folderUri: Uri.file(''),
+                            name: '',
+                            type: '',
+                            workspaceFolder: undefined
+                        },
+                        executable: {
+                            bitness: undefined,
+                            sysPrefix: undefined,
+                            uri: undefined
+                        },
+                        id: 'version',
+                        path: '',
+                        tools: [],
+                        version
+                    }
+                ]);
+                await warnWhenUsingOutdatedPython(kernel);
+                verify(mockedVSCodeNamespaces.window.showWarningMessage(anything(), anything())).never();
+            });
+        });
+        const invalidVersionsOfPython: Environment['version'][] = [
+            {
+                major: 3,
+                minor: -6,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: -3,
+                minor: 7,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: -1,
+                minor: 8,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 0,
+                minor: 0,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 0,
+                minor: 1,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            }
+        ];
+
+        invalidVersionsOfPython.forEach((version) => {
+            test(`No warnings when Python version is invalid ${version?.major}.${version?.minor}.${version?.micro}`, async () => {
+                const kernel = LocalKernelSpecConnectionMetadata.create({
+                    id: '1234',
+                    kernelSpec: {
+                        argv: [],
+                        display_name: '',
+                        executable: '',
+                        name: ''
+                    },
+                    interpreter: {
+                        id: 'version',
+                        uri: Uri.file('')
+                    }
+                });
+                when(environments.known).thenReturn([
+                    {
+                        environment: {
+                            folderUri: Uri.file(''),
+                            name: '',
+                            type: '',
+                            workspaceFolder: undefined
+                        },
+                        executable: {
+                            bitness: undefined,
+                            sysPrefix: undefined,
+                            uri: undefined
+                        },
+                        id: 'version',
+                        path: '',
+                        tools: [],
+                        version
+                    }
+                ]);
+                await warnWhenUsingOutdatedPython(kernel);
+                verify(mockedVSCodeNamespaces.window.showWarningMessage(anything(), anything())).never();
+            });
+        });
+        const unsupportedVersionsOfPython: Environment['version'][] = [
+            {
+                major: 3,
+                minor: 5,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 3,
+                minor: 4,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 2,
+                minor: 7,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            },
+            {
+                major: 2,
+                minor: 5,
+                micro: 0,
+                release: undefined,
+                sysVersion: undefined
+            }
+        ];
+
+        unsupportedVersionsOfPython.forEach((version) => {
+            test(`Warnings when Python version is not supported ${version?.major}.${version?.minor}.${version?.micro}`, async () => {
+                const kernel = LocalKernelSpecConnectionMetadata.create({
+                    id: '1234',
+                    kernelSpec: {
+                        argv: [],
+                        display_name: '',
+                        executable: '',
+                        name: ''
+                    },
+                    interpreter: {
+                        id: 'version',
+                        uri: Uri.file('')
+                    }
+                });
+                whenResolveEnvironment(environments).thenResolve({
+                    id: 'version',
+                    version
+                });
+                await warnWhenUsingOutdatedPython(kernel);
+                verify(mockedVSCodeNamespaces.window.showWarningMessage(anything(), anything())).once();
+            });
+        });
     });
 });
