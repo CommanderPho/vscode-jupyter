@@ -2291,7 +2291,6 @@
         "gulp-filter": "^7.0.0",
         "gulp-rename": "^2.0.0",
         "gulp-typescript": "^6.0.0-alpha.1",
-        "husky": "^8.0.3",
         "jsdom": "^22.1.0",
         "json2csv": "^5.0.7",
         "jsonschema": "^1.4.1",
