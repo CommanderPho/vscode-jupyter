@@ -848,7 +848,8 @@ export class CellExecutionMessageHandler implements IDisposable {
                     cancelToken.token
                 )
                 .then((v) => {
-                    this.kernel.sendInputReply({ value: v || '', status: 'ok' });
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    this.kernel.sendInputReply({ value: v || '', status: 'ok' }, msg.header as any);
                 }, noop);
 
             this.prompts.delete(cancelToken);
@@ -1077,7 +1078,8 @@ export class CellExecutionMessageHandler implements IDisposable {
             const cellExecution = CellExecutionCreator.get(this.cell);
             if (cellExecution && msg.content.ename !== 'KeyboardInterrupt') {
                 cellExecution.errorInfo = {
-                    message: `${msg.content.ename}: ${msg.content.evalue}`,
+                    name: msg.content.ename,
+                    message: msg.content.evalue,
                     location: findErrorLocation(msg.content.traceback, this.cell),
                     uri: this.cell.document.uri,
                     stack: msg.content.traceback.join('\n')
