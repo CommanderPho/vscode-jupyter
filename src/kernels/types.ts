@@ -33,6 +33,7 @@ import {
 } from '../platform/common/constants';
 import { sendTelemetryEvent } from '../telemetry';
 import { generateIdFromRemoteProvider } from './jupyter/jupyterUtils';
+import { getEnvironmentType } from '../platform/interpreter/helpers';
 
 export type WebSocketData = string | Buffer | ArrayBuffer | Buffer[];
 
@@ -431,8 +432,7 @@ export interface INotebookKernelExecution {
      * Total execution count on this kernel
      */
     readonly executionCount: number;
-    readonly onPreExecute: Event<NotebookCell>;
-    readonly onPostExecute: Event<NotebookCell>;
+    readonly onDidReceiveDisplayUpdate: Event<NotebookCellOutput>;
     /**
      * Cells that are still being executed (or pending).
      */
@@ -579,7 +579,6 @@ export interface IBaseKernelSession<T extends 'remoteJupyter' | 'localJupyter' |
     readonly kind: T;
     readonly status: KernelMessage.Status;
     readonly onDidKernelSocketChange: Event<void>;
-    disposeAsync(): Promise<void>;
     onDidDispose: Event<void>;
     onDidShutdown: Event<void>;
     restart(): Promise<void>;
@@ -634,6 +633,10 @@ export interface IJupyterKernelSpec {
          * @deprecated (use metadata.jupyter.originalSpecFile)
          */
         originalSpecFile?: string;
+        /**
+         * Whether the kernels supports the debugger Protocol.
+         */
+        debugger?: boolean;
     };
     readonly argv: string[];
     /**
@@ -939,7 +942,7 @@ function sendKernelTelemetry(kernel: KernelConnectionMetadata) {
                 providerExtensionId,
                 kernelConnectionType: kernel.kind,
                 kernelLanguage: language,
-                envType: interpreter?.envType,
+                envType: interpreter && getEnvironmentType(interpreter),
                 isArgv0SameAsInterpreter,
                 argv0,
                 argv

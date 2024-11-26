@@ -17,7 +17,7 @@ import {
     workspace
 } from 'vscode';
 
-import { traceInfo, traceVerbose } from '../platform/logging';
+import { logger } from '../platform/logging';
 import { IFileSystem } from '../platform/common/platform/types';
 
 import {
@@ -121,6 +121,7 @@ export class InteractiveWindowProvider implements IInteractiveWindowProvider, IE
                 tab,
                 Uri.parse(iw.inputBoxUriString)
             );
+
             result.notifyConnectionReset();
 
             this._windows.push(result);
@@ -187,7 +188,7 @@ export class InteractiveWindowProvider implements IInteractiveWindowProvider, IE
         try {
             let initialController = await this.controllerHelper.getInitialController(resource, connection);
 
-            traceInfo(
+            logger.info(
                 `Starting interactive window for resource '${getDisplayPath(
                     resource
                 )}' with controller '${initialController?.id}'`
@@ -200,7 +201,7 @@ export class InteractiveWindowProvider implements IInteractiveWindowProvider, IE
                     NotebookControllerAffinity.Preferred
                 );
             }
-            traceVerbose(
+            logger.debug(
                 `Interactive Window Editor Created: ${editor.notebook.uri.toString()} with input box: ${inputUri.toString()}`
             );
 
@@ -364,7 +365,7 @@ export class InteractiveWindowProvider implements IInteractiveWindowProvider, IE
     }
 
     private onInteractiveWindowClosed(interactiveWindow: IInteractiveWindow) {
-        traceVerbose(`Closing interactive window: ${interactiveWindow.notebookUri?.toString()}`);
+        logger.debug(`Closing interactive window: ${interactiveWindow.notebookUri?.toString()}`);
         interactiveWindow.dispose();
         this._windows = this._windows.filter((w) => w !== interactiveWindow);
         this._updateWindowCache();

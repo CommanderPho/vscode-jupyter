@@ -21,7 +21,7 @@ import { noop } from './utils/misc';
 import { IDisposable } from './types';
 import { dispose } from './utils/lifecycle';
 import { DisposableBase } from './utils/lifecycle';
-import { traceError } from '../logging';
+import { logger } from '../logging';
 
 abstract class BaseQuickPickItem implements QuickPickItem {
     label: string;
@@ -133,6 +133,7 @@ export class BaseProviderBasedQuickPick<T extends { id: string }> extends Dispos
         disposables.push(quickPick);
         this.quickPickItems = [];
         quickPick.placeholder = this.placeholder;
+        quickPick.matchOnDescription = true;
         quickPick.buttons = this.options.supportsBack ? [QuickInputButtons.Back, refreshButton] : [refreshButton];
         quickPick.ignoreFocusOut = true;
         quickPick.busy = true;
@@ -193,7 +194,7 @@ export class BaseProviderBasedQuickPick<T extends { id: string }> extends Dispos
 
                 this.updateQuickPickItems(quickPick, provider);
             })
-            .catch((ex) => traceError(`Failed to get quick pick items for ${quickPick.title}`, ex));
+            .catch((ex) => logger.error(`Failed to get quick pick items for ${quickPick.title}`, ex));
 
         disposables.forEach((d) => this._register(d));
         return { quickPick, disposables };

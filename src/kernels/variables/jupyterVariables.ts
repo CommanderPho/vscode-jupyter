@@ -43,9 +43,10 @@ export class JupyterVariables implements IJupyterVariables {
     getAllVariableDiscriptions(
         kernel: IKernel,
         parent: IVariableDescription | undefined,
-        token?: CancellationToken
+        startIndex: number,
+        token: CancellationToken
     ): Promise<IVariableDescription[]> {
-        return this.variableHandler.getAllVariableDiscriptions(kernel, parent, token);
+        return this.variableHandler.getAllVariableDiscriptions(kernel, parent, startIndex, token);
     }
 
     @capturePerfTelemetry(Telemetry.VariableExplorerFetchTime)
@@ -72,6 +73,14 @@ export class JupyterVariables implements IJupyterVariables {
         isRefresh?: boolean
     ): Promise<IJupyterVariable> {
         return this.variableHandler.getDataFrameInfo(targetVariable, kernel, sliceExpression, isRefresh);
+    }
+
+    public async getVariableValueSummary(
+        targetVariable: IJupyterVariable,
+        kernel: IKernel,
+        cancelToken?: CancellationToken
+    ) {
+        return this.variableHandler.getVariableValueSummary(targetVariable, kernel, cancelToken);
     }
 
     public async getDataFrameRows(

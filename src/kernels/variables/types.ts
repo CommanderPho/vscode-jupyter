@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CancellationToken, Event, Uri, Variable } from 'vscode';
+import { CancellationToken, Event, NotebookVariableProvider, Uri, Variable } from 'vscode';
 import { IKernel } from '../types';
 import type { JSONObject } from '@lumino/coreutils';
 
@@ -14,6 +14,7 @@ export interface IJupyterVariable {
     executionCount?: number;
     supportsDataExplorer: boolean;
     type: string;
+    fullType?: string;
     size: number;
     shape: string;
     dataDimensionality?: number;
@@ -32,7 +33,8 @@ export interface IJupyterVariables {
     getAllVariableDiscriptions(
         kernel: IKernel,
         parent: IVariableDescription | undefined,
-        token?: CancellationToken
+        startIndex: number,
+        token: CancellationToken
     ): Promise<IVariableDescription[]>;
     getVariables(request: IJupyterVariablesRequest, kernel?: IKernel): Promise<IJupyterVariablesResponse>;
     getFullVariable(
@@ -40,6 +42,11 @@ export interface IJupyterVariables {
         kernel?: IKernel,
         cancelToken?: CancellationToken
     ): Promise<IJupyterVariable>;
+    getVariableValueSummary(
+        variable: IJupyterVariable,
+        kernel: IKernel,
+        cancelToken?: CancellationToken
+    ): Promise<string | undefined>;
     getDataFrameInfo(
         targetVariable: IJupyterVariable,
         kernel?: IKernel,
@@ -92,8 +99,16 @@ export interface IVariableDescription extends Variable {
     propertyChain: (string | number)[];
     /** The number of children for collection types */
     count?: number;
-    /** names of children */
-    properties?: string[];
+    /** Names of children */
+    hasNamedChildren?: boolean;
+    /** A method to get the children of this variable */
+    getChildren?: (start: number, token: CancellationToken) => Promise<IVariableDescription[]>;
+}
+
+export interface IRichVariableResult {
+    variable: Variable & { summary?: string };
+    hasNamedChildren: boolean;
+    indexedChildrenCount: number;
 }
 
 export const IKernelVariableRequester = Symbol('IKernelVariableRequester');
@@ -102,7 +117,8 @@ export interface IKernelVariableRequester {
     getAllVariableDiscriptions(
         kernel: IKernel,
         parent: IVariableDescription | undefined,
-        token?: CancellationToken
+        startIndex: number,
+        token: CancellationToken
     ): Promise<IVariableDescription[]>;
     getVariableNamesAndTypesFromKernel(kernel: IKernel, token?: CancellationToken): Promise<IJupyterVariable[]>;
     getFullVariable(
@@ -121,5 +137,13 @@ export interface IKernelVariableRequester {
         cancelToken: CancellationToken | undefined,
         matchingVariable: IJupyterVariable | undefined
     ): Promise<{ [attributeName: string]: string }>;
+    getVariableValueSummary(
+        targetVariable: IJupyterVariable,
+        kernel: IKernel,
+        token: CancellationToken
+    ): Promise<string | undefined>;
     getDataFrameInfo(targetVariable: IJupyterVariable, kernel: IKernel, expression: string): Promise<IJupyterVariable>;
 }
+
+export const IJupyterVariablesProvider = Symbol('IJupyterVariablesProvider');
+export interface IJupyterVariablesProvider extends NotebookVariableProvider {}
