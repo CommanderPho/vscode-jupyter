@@ -21,7 +21,6 @@ import { CellExecutionMessageHandlerService } from './execution/cellExecutionMes
 import { CellExecutionQueue } from './execution/cellExecutionQueue';
 import { cellOutputToVSCCellOutput, traceCellMessage } from './execution/helpers';
 import { executeSilently } from './helpers';
-import { initializeInteractiveOrNotebookTelemetryBasedOnUserAction } from './telemetry/helper';
 import { sendKernelTelemetryEvent } from './telemetry/sendKernelTelemetryEvent';
 import {
     IKernel,
@@ -35,7 +34,7 @@ import { StopWatch } from '../platform/common/utils/stopWatch';
 import { noop } from '../platform/common/utils/misc';
 import { createDeferred, createDeferredFromPromise } from '../platform/common/utils/async';
 import { dispose } from '../platform/common/utils/lifecycle';
-import { JVSC_EXTENSION_ID } from '../platform/common/constants';
+import { POWER_TOYS_EXTENSION_ID, JVSC_EXTENSION_ID } from '../platform/common/constants';
 import type { IMessage } from '@jupyterlab/services/lib/kernel/messages';
 import type { KernelMessage } from '@jupyterlab/services';
 import type * as nbformat from '@jupyterlab/nbformat';
@@ -140,10 +139,6 @@ export class NotebookKernelExecution implements INotebookKernelExecution {
             return;
         }
 
-        await initializeInteractiveOrNotebookTelemetryBasedOnUserAction(
-            this.kernel.resourceUri,
-            this.kernel.kernelConnectionMetadata
-        );
         sendKernelTelemetryEvent(this.kernel.resourceUri, Telemetry.ResumeCellExecution);
         const sessionPromise = this.kernel.start(new DisplayOptions(false));
         const executionQueue = this.getOrCreateCellExecutionQueue(cell.notebook, sessionPromise);
@@ -166,21 +161,16 @@ export class NotebookKernelExecution implements INotebookKernelExecution {
             return;
         }
 
-        traceCellMessage(cell, `NotebookKernelExecution.executeCell, ${getDisplayPath(cell.notebook.uri)}`);
-        await initializeInteractiveOrNotebookTelemetryBasedOnUserAction(
-            this.kernel.resourceUri,
-            this.kernel.kernelConnectionMetadata
-        );
-        const sessionPromise = this.kernel.start(new DisplayOptions(false));
-
-        // If we're restarting, wait for it to finish
-        await this.kernel.restarting;
-
         traceCellMessage(cell, `NotebookKernelExecution.executeCell (2), ${getDisplayPath(cell.notebook.uri)}`);
+        // If we're restarting, wait for it to finish
+        const sessionPromise = this.kernel.restarting.then(() => this.kernel.start(new DisplayOptions(false)));
+
+        traceCellMessage(cell, `NotebookKernelExecution.executeCell (3), ${getDisplayPath(cell.notebook.uri)}`);
         const executionQueue = this.getOrCreateCellExecutionQueue(cell.notebook, sessionPromise);
         executionQueue.queueCell(cell, codeOverride);
         let success = true;
         try {
+            traceCellMessage(cell, `NotebookKernelExecution.executeCell (4), ${getDisplayPath(cell.notebook.uri)}`);
             await executionQueue.waitForCompletion(cell);
         } catch (ex) {
             success = false;
@@ -188,7 +178,7 @@ export class NotebookKernelExecution implements INotebookKernelExecution {
         } finally {
             traceCellMessage(
                 cell,
-                `NotebookKernelExecution.executeCell completed (3), ${getDisplayPath(cell.notebook.uri)}`
+                `NotebookKernelExecution.executeCell completed (5), ${getDisplayPath(cell.notebook.uri)}`
             );
             logger.trace(`Cell ${cell.index} executed ${success ? 'successfully' : 'with an error'}`);
             sendKernelTelemetryEvent(this.kernel.resourceUri, Telemetry.ExecuteCell, {
@@ -206,19 +196,13 @@ export class NotebookKernelExecution implements INotebookKernelExecution {
         token: CancellationToken
     ): AsyncGenerator<NotebookCellOutput, void, unknown> {
         const stopWatch = new StopWatch();
-        await initializeInteractiveOrNotebookTelemetryBasedOnUserAction(
-            this.kernel.resourceUri,
-            this.kernel.kernelConnectionMetadata
-        );
-        const sessionPromise = this.kernel.start(new DisplayOptions(false));
-
         // If we're restarting, wait for it to finish
-        await this.kernel.restarting;
+        const sessionPromise = this.kernel.restarting.then(() => this.kernel.start(new DisplayOptions(false)));
 
         const executionQueue = this.getOrCreateCellExecutionQueue(this.notebook, sessionPromise);
 
         let result: ICodeExecution;
-        if (extensionId === JVSC_EXTENSION_ID) {
+        if (extensionId === JVSC_EXTENSION_ID || extensionId === POWER_TOYS_EXTENSION_ID) {
             // No need to queue code execution for JVSC, as it will be executed immediately.
             // Only 3rd party code needs to be queued (as we need to give user code preference over 3rd party ext code)
             result = CodeExecution.fromCode(code, extensionId);

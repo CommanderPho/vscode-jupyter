@@ -9,9 +9,13 @@ import { logger } from '../logging';
 import { getDisplayPath } from '../common/platform/fs-paths';
 import { Uri } from 'vscode';
 import { getOSType, OSType } from '../common/utils/platform';
+import { isCI } from '../common/constants';
 
 export function getPythonEnvDisplayName(interpreter: PythonEnvironment | Environment | { id: string }) {
     const env = getCachedEnvironment(interpreter);
+    if (isCI) {
+        logger.ci(`Python Env Info for ${JSON.stringify(interpreter)} is ${JSON.stringify(env)}`);
+    }
     if (env) {
         const versionParts: string[] = [];
         if (typeof env.version?.major === 'number') {
@@ -140,12 +144,18 @@ export function isCondaEnvironmentWithoutPython(interpreter?: { id: string }) {
     return env && getEnvironmentType(env) === EnvironmentType.Conda && !env.executable.uri;
 }
 
-export function getCachedEnvironment(interpreter?: { id: string }) {
+export function getCachedEnvironment(interpreter?: { id: string } | string) {
     if (!interpreter) {
         return;
     }
     if (!pythonApi) {
         throw new Error('Python API not initialized');
+    }
+    if (typeof interpreter === 'string') {
+        return pythonApi.environments.known.find(
+            // eslint-disable-next-line local-rules/dont-use-fspath
+            (i) => i.id === interpreter || i.path === interpreter || i.executable.uri?.fsPath === interpreter
+        );
     }
     return pythonApi.environments.known.find((i) => i.id === interpreter.id);
 }
