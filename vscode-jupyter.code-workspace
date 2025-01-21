@@ -19,5 +19,11 @@
             "notebook.outputContainerBackgroundColor": "#a5c2aa50",
             "notebook.outputContainerBorderColor": "#10ff10"
         },
-	}
+    },
+    "extensions": {
+        "recommendations": [
+            "phohale.pho-vscode-jupyter-cell-tags",
+            "amiralariska.vscode-extension-development-intellisense"
+        ]
+    }
 }

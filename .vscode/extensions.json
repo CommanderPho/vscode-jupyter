@@ -8,6 +8,8 @@
         "hbenl.vscode-mocha-test-adapter",
         "ms-python.black",
         "ms-vscode.extension-test-runner",
-        "connor4312.esbuild-problem-matchers"
+        "connor4312.esbuild-problem-matchers",
+        "phohale.pho-vscode-jupyter-cell-tags",
+        "amiralariska.vscode-extension-development-intellisense"
     ]
 }

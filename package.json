@@ -10,8 +10,7 @@
     "extensionPack": [
         "ms-toolsai.jupyter-keymap",
         "ms-toolsai.jupyter-renderers",
-        "ms-toolsai.vscode-jupyter-slideshow",
-        "phohale.vscode-jupyter-cell-tags"
+        "phohale.pho-vscode-jupyter-cell-tags"
     ],
     "license": "MIT",
     "homepage": "https://github.com/Microsoft/vscode-jupyter",
